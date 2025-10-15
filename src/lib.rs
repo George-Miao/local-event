@@ -64,7 +64,7 @@ impl Event {
     /// let event = Event::new();
     /// event.listen().await;
     ///
-    /// // Do something after the value is changed.
+    /// // Do something after the event is received.
     /// ```
     pub fn listen(&self) -> EventListener {
         let mut inner = self.inner.borrow_mut();

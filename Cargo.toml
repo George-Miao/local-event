@@ -3,6 +3,7 @@ name = "local-event"
 version = "0.1.0"
 edition = "2024"
 authors = ["George Miao <gm@miao.dev>"]
+license = "MIT"
 description = "Single-threaded version of `event_listener`"
 
 [dev-dependencies]
