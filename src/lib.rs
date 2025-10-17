@@ -2,6 +2,7 @@
 use std::{
     cell::RefCell,
     collections::BTreeMap,
+    fmt::Debug,
     pin::Pin,
     rc::Rc,
     task::{Context, Poll, Waker},
@@ -12,10 +13,22 @@ use std::{
 ///
 /// This is similar to `event_listener::Event` but uses `Rc`/`RefCell` instead
 /// of thread-safe primitives, making it suitable only for single-threaded use.
+#[derive(Clone)]
 pub struct Event {
     inner: Rc<RefCell<Inner>>,
 }
 
+impl Debug for Event {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let guard = self.inner.try_borrow();
+        match guard {
+            Ok(inner) => f.debug_tuple("Event").field(&inner).finish(),
+            Err(_) => f.debug_tuple("Event").field(&"<locked>").finish(),
+        }
+    }
+}
+
+#[derive(Debug)]
 struct Inner {
     /// List of listeners waiting for notification.
     listeners: BTreeMap<usize, ListenerEntry>,
