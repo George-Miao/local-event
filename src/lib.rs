@@ -1,10 +1,14 @@
 //! A single-threaded (unsync) version of [`event-listener`](https://crates.io/crates/event-listener).
-use std::{
+
+#![no_std]
+
+extern crate alloc;
+
+use alloc::{collections::BTreeMap, rc::Rc};
+use core::{
     cell::RefCell,
-    collections::BTreeMap,
     fmt::Debug,
     pin::Pin,
-    rc::Rc,
     task::{Context, Poll, Waker},
 };
 
@@ -19,7 +23,7 @@ pub struct Event {
 }
 
 impl Debug for Event {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         let guard = self.inner.try_borrow();
         match guard {
             Ok(inner) => f.debug_tuple("Event").field(&inner).finish(),
@@ -270,7 +274,7 @@ impl Drop for EventListener {
     }
 }
 
-impl std::future::Future for EventListener {
+impl core::future::Future for EventListener {
     type Output = ();
 
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
