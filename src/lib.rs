@@ -291,6 +291,34 @@ impl std::future::Future for EventListener {
     }
 }
 
+/// Create an event listener for an [`Event`].
+///
+/// This macro exists **solely for API compatibility** with `event-listener`,
+/// making it easier to swap or mix `local-event` and `event-listener` in the
+/// same codebase. Unlike the `event-listener` version, this macro provides no
+/// stack-allocation benefit — it is a trivial wrapper around [`Event::listen`].
+///
+/// **Prefer calling [`Event::listen`] directly.** Only reach for this macro
+/// when you need source-level compatibility with code that already uses
+/// `event-listener`'s `listener!`.
+///
+/// # Example
+///
+/// ```
+/// use local_event::{Event, listener};
+///
+/// let event = Event::new();
+/// listener!(event => listener);
+/// // equivalent to: let mut listener = event.listen();
+/// ```
+#[macro_export]
+macro_rules! listener {
+    ($event:expr => $listener:ident) => {
+        #[allow(unused_mut)]
+        let mut $listener = $event.listen();
+    };
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
