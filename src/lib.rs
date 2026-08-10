@@ -285,6 +285,8 @@ impl core::future::Future for EventListener {
         };
 
         if entry.notified {
+            inner.listeners.remove(&self.id);
+            inner.notified -= 1;
             return Poll::Ready(());
         }
 
@@ -410,6 +412,29 @@ mod tests {
         drop(listener2);
 
         assert!(listener3.is_notified());
+    }
+
+    #[test]
+    fn test_notify_consumed() {
+        let event = Event::new();
+        let mut listener1 = event.listen();
+        let listener2 = event.listen();
+
+        event.notify(1);
+
+        let mut cx = Context::from_waker(Waker::noop());
+        assert_eq!(
+            core::future::Future::poll(Pin::new(&mut listener1), &mut cx),
+            Poll::Ready(())
+        );
+
+        drop(listener1);
+
+        assert!(!listener2.is_notified());
+
+        event.notify(1);
+
+        assert!(listener2.is_notified());
     }
 
     #[pollster::test]
